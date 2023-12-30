@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 using System.Reflection;
 using YoutubeBlog.Data.Context;
 using YoutubeBlog.Data.Extensions;
@@ -12,7 +13,13 @@ builder.Services.LoadDataLayerExtension(builder.Configuration);
 builder.Services.LoadServiceLayerExtension();
 builder.Services.AddSession();
 // Add services to the container.
-builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+builder.Services.AddControllersWithViews()
+    .AddNToastNotifyToastr(new ToastrOptions()
+    {
+        PositionClass = ToastPositions.TopRight,
+        TimeOut = 3000
+    })
+    .AddRazorRuntimeCompilation();
 
 //Canlýya çýkarsa kaldýr
 builder.Services.AddIdentity<AppUser, AppRole>(opt =>
@@ -52,6 +59,8 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+app.UseNToastNotify();
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();

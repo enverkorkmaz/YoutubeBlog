@@ -10,6 +10,10 @@ namespace YoutubeBlog.Service.Services.Abstractions
 {
     public interface IArticleService
     {
-        Task<List<ArticleDto>> GetAllArticlesAsync();
+        Task<List<ArticleDto>> GetAllArticlesWithCaregoryNonDeletedAsync();
+        Task CreateArticleAsync(ArticleAddDto articleAddDto);
+        Task<ArticleDto> GetArticleWithCaregoryNonDeletedAsync(Guid articleId);
+        Task<string> UpdateArticleAsync(ArticleUpdateDto articleUpdateDto);
+        Task<string> SafeDeleteArticleAsync(Guid articleId);
     }
 }
