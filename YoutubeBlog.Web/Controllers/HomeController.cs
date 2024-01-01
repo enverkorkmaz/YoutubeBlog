@@ -19,7 +19,7 @@ namespace YoutubeBlog.Web.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var articles = await articleService.GetAllArticlesWithCaregoryNonDeletedAsync();
+            var articles = await articleService.GetAllArticlesWithCategoryNonDeletedAsync();
             return View(articles);
         }
 

@@ -30,7 +30,7 @@ namespace YoutubeBlog.Web.Areas.Admin.Controllers
         }
         public async Task<IActionResult> Index()
         {
-            var articles = await articleService.GetAllArticlesWithCaregoryNonDeletedAsync();
+            var articles = await articleService.GetAllArticlesWithCategoryNonDeletedAsync();
             return View(articles);
         }
         [HttpGet]
@@ -61,9 +61,11 @@ namespace YoutubeBlog.Web.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Update(Guid articleId)
         {
-            var article = await articleService.GetArticleWithCaregoryNonDeletedAsync(articleId);
+            var article = await articleService.GetArticleWithCategoryNonDeletedAsync(articleId);
 
             var categories = await categoryService.GetAllCategoriesNonDeleted();
+
+
 
             var articleUpdateDto = mapper.Map<ArticleUpdateDto>(article);
             articleUpdateDto.Categories = categories;
