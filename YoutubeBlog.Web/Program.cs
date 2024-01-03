@@ -5,6 +5,7 @@ using System.Reflection;
 using YoutubeBlog.Data.Context;
 using YoutubeBlog.Data.Extensions;
 using YoutubeBlog.Entity.Entities;
+using YoutubeBlog.Service.Describers;
 using YoutubeBlog.Service.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -30,6 +31,7 @@ builder.Services.AddIdentity<AppUser, AppRole>(opt =>
 
 })
     .AddRoleManager<RoleManager<AppRole>>()
+    .AddErrorDescriber<CustomIdentityErrorDescriber>()
     .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders();
 

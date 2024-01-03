@@ -40,8 +40,8 @@ namespace YoutubeBlog.Service.Services.Concrete
             var userId = _user.GetLoggedInUserId();
             var userEmail = _user.GetLoggedInEmail();
 
-            var imageUpload = await imageHelper.Upload(articleAddDto.Title,articleAddDto.Photo, ImageType.Post);
-            Image image = new(imageUpload.FullName,articleAddDto.Photo.ContentType,userEmail);
+            var imageUpload = await imageHelper.Upload(articleAddDto.Title, articleAddDto.Photo, ImageType.Post);
+            Image image = new(imageUpload.FullName, articleAddDto.Photo.ContentType, userEmail);
             await unitOfWork.GetRepository<Image>().AddAsync(image);
 
 
@@ -59,7 +59,7 @@ namespace YoutubeBlog.Service.Services.Concrete
         }
         public async Task<ArticleDto> GetArticleWithCategoryNonDeletedAsync(Guid articleId)
         {
-            var article = await unitOfWork.GetRepository<Article>().GetAsync(x => !x.ısDeleted && x.Id == articleId, x => x.Category,i => i.Image);
+            var article = await unitOfWork.GetRepository<Article>().GetAsync(x => !x.ısDeleted && x.Id == articleId, x => x.Category, i => i.Image);
             var map = mapper.Map<ArticleDto>(article);
             return map;
         }
@@ -70,12 +70,12 @@ namespace YoutubeBlog.Service.Services.Concrete
             var userEmail = _user.GetLoggedInEmail();
             var article = await unitOfWork.GetRepository<Article>().GetAsync(x => !x.ısDeleted && x.Id == articleUpdateDto.Id, x => x.Category, i => i.Image);
 
-            if(articleUpdateDto.Photo != null)
+            if (articleUpdateDto.Photo != null)
             {
                 imageHelper.Delete(article.Image.FileName);
 
                 var imageUpload = await imageHelper.Upload(articleUpdateDto.Title, articleUpdateDto.Photo, ImageType.Post);
-                Image image = new(imageUpload.FullName,articleUpdateDto.Photo.ContentType,userEmail);
+                Image image = new(imageUpload.FullName, articleUpdateDto.Photo.ContentType, userEmail);
 
                 await unitOfWork.GetRepository<Image>().AddAsync(image);
 
@@ -107,5 +107,29 @@ namespace YoutubeBlog.Service.Services.Concrete
 
             return article.Title;
         }
+
+        public async Task<List<ArticleDto>> GetAllArticlesWithCategoryDeletedAsync()
+        {
+            var articles = await unitOfWork.GetRepository<Article>().GetAllAsync(x => x.ısDeleted, x => x.Category);
+            var map = mapper.Map<List<ArticleDto>>(articles);
+            return map;
+        }
+
+        public async Task<string> UndoDeleteArticleAsync(Guid articleId)
+        {
+
+            var article = await unitOfWork.GetRepository<Article>().GetByGuidAsync(articleId);
+
+            article.ısDeleted = false;
+            article.DeletedDate = null;
+            article.DeletedBy = null;
+
+            await unitOfWork.GetRepository<Article>().UpdateAsync(article);
+            await unitOfWork.SaveAsync();
+
+            return article.Title;
+        }
+
+
     }
 }
