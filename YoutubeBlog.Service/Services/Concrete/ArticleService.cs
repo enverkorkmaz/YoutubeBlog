@@ -33,6 +33,28 @@ namespace YoutubeBlog.Service.Services.Concrete
             _user = httpContextAccessor.HttpContext.User;
         }
 
+        public async Task<ArticleListDto> GetAllByPagingAsync(Guid? categoryId, int currentPage = 1, int pageSize = 3, bool isAscending = false)
+        {
+            pageSize = pageSize > 20 ? 20 : pageSize;
+            var articles = categoryId == null
+                ? await unitOfWork.GetRepository<Article>().GetAllAsync(a => !a.ısDeleted, a => a.Category, i => i.Image, u => u.User)
+                : await unitOfWork.GetRepository<Article>().GetAllAsync(a => a.CategoryId == categoryId && !a.ısDeleted, x => x.Category, i => i.Image, u => u.User);
+
+            var sortedArticles = isAscending
+                ? articles.OrderBy(a => a.CreatedDate).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList()
+                : articles.OrderByDescending(a => a.CreatedDate).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+            return new ArticleListDto
+            {
+                Articles = sortedArticles,
+                CategoryId = categoryId == null ? null : categoryId.Value,
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = articles.Count,
+                isAscending = isAscending
+            };
+        }
+
         public async Task CreateArticleAsync(ArticleAddDto articleAddDto)
         {
             //var userId = Guid.Parse("89051764-0BAF-4754-BD6F-507EBFB3C2D5
@@ -130,6 +152,24 @@ namespace YoutubeBlog.Service.Services.Concrete
             return article.Title;
         }
 
+        public async Task<ArticleListDto> SearchAsync(string keyword, int currentPage = 1, int pageSize = 3, bool isAscending = false)
+        {
+            pageSize = pageSize > 20 ? 20 : pageSize;
+            var articles = await unitOfWork.GetRepository<Article>().GetAllAsync(a => !a.ısDeleted && (a.Title.Contains(keyword)) || (a.Content.Contains(keyword)) || (a.Category.Name.Contains(keyword)),
+                a => a.Category, i => i.Image, u => u.User);
 
+            var sortedArticles = isAscending
+                ? articles.OrderBy(a => a.CreatedDate).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList()
+                : articles.OrderByDescending(a => a.CreatedDate).Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+            return new ArticleListDto
+            {
+                Articles = sortedArticles,
+                CurrentPage = currentPage,
+                PageSize = pageSize,
+                TotalCount = articles.Count,
+                isAscending = isAscending
+            };
+        }
     }
 }
