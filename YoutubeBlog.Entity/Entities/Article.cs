@@ -32,6 +32,7 @@ namespace YoutubeBlog.Entity.Entities
         public Image Image { get; set; }
         public Guid UserId { get; set; }
         public AppUser User { get; set; }
+        public ICollection<ArticleVisitor> ArticleVisitors { get; set; }
 
     }
 }
